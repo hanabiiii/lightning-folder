@@ -1,0 +1,29 @@
+.lf-container {
+    position: relative;
+    min-height: 20px;
+}
+
+.lf-container .fancytree-container {
+    outline-color: rgb(8, 7, 7) !important;
+    outline-width: 0px !important;
+}
+
+.lf-container .fancytree-node.fancytree-folder.fancytree-active .fancytree-title {
+    background-color: #cbe8f6;
+    border-color: #26a0da;
+    border-style: dashed;
+}
+
+.lf-container .fancytree-node.fancytree-folder.fancytree-selected .fancytree-title {
+    border-style: solid !important;
+}
+
+.lf-container .fancytree-node.fancytree-folder .fancytree-title:focus,
+.lf-container .fancytree-node.fancytree-folder.fancytree-focused:not(.fancytree-selected) .fancytree-title {
+    outline: 1px dashed #000 !important;
+}
+
+.lf-container .fancytree-custom-icon {
+    border-radius: 0.25rem;
+    line-height: 1;
+}
