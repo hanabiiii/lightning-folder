@@ -1,0 +1,55 @@
+# Unique name for this workflow
+name: Packaging
+
+# Workflow starts when closed pull request to main
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+# Jobs to be executed
+jobs:
+  release-package-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+
+      - name: NPM install
+        run: npm ci
+
+      - name: Populate auth file with PACKAGING_SFDX_URL secret
+        shell: bash
+        run: "echo ${{ secrets.PACKAGING_SFDX_URL }} > ./PACKAGING_SFDX_URL.txt"
+
+      - name: Authenticate Dev Hub
+        run: npx sfdx force:auth:sfdxurl:store -f ./PACKAGING_SFDX_URL.txt -a devhub -d -s --setalias PkgOrg
+
+      - name: Remove auth file
+        run: rm -f ./PACKAGING_SFDX_URL.txt
+
+      - name: Convert code to metadata
+        run: npx sfdx force:source:convert -x manifest/package.xml -d mdapi-source/updated-package -n "Lightning Folder"
+
+      - name: Push To Package Org
+        run: npx sfdx force:mdapi:deploy -d mdapi-source/updated-package --targetusername PkgOrg --testlevel RunSpecifiedTests --runtests LightningFolderController_Test -w -1
+
+      - name: Create .env file
+        run: |
+          touch .env
+          echo METADATA_PACKAGE_ID=${{ secrets.METADATA_PACKAGE_ID }} >> .env
+          echo MAJOR_RELEASE=${{ secrets.MAJOR_RELEASE }} >> .env
+          echo SF_GITHUB_TOKEN=${{ secrets.SF_GITHUB_TOKEN }} >> .env
+
+      - name: Start packaging script
+        run: |
+          git config user.email "${{ secrets.GH_EMAIL }}"
+          git config user.name "hanabiiii"
+          npm run-script packaging
+        env:
+          METADATA_PACKAGE_ID: ${{ secrets.METADATA_PACKAGE_ID }}
+          MAJOR_RELEASE: ${{ secrets.MAJOR_RELEASE }}
+          SF_GITHUB_TOKEN: ${{ secrets.SF_GITHUB_TOKEN }}
