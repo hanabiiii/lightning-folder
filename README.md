@@ -60,7 +60,7 @@ Please check [release page](https://github.com/hanabiiii/lightning-folder/releas
 `select`
 
 The event fired when a folder is selected.
-The change event returns the following parameter.
+The event returns the following parameter.
 | Parameter | Type | Description |
 | ----------------- | ----------- | ------------------------------------------------- |
 | `folderId` | `string` | The Content Folder Id of the selected folder. |

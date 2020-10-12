@@ -63,8 +63,8 @@ async function generateVersionNumber() {
       if (majorRelease) {
         result.current = `${parseFloat(last.Version)}`;
         const versionPart = last.Version.split('.');
-        const majorVersion = parseInt(versionPart[1]) + 1
-        result.next = `${parseFloat(`${versionPart[0]}.${majorVersion}`)}`;
+        const majorVersion = parseInt(versionPart[1]) + 1;
+        result.next = majorVersion >= 10 ? `${(parseInt(last.Version) + 1)}.0` : `${parseFloat(`${versionPart[0]}.${majorVersion}`)}`;
       } else {
         result.current = `${parseInt(last.Version)}.0`;
         result.next = `${(parseInt(last.Version) + 1)}.0`;
@@ -123,7 +123,7 @@ function sleep(ms) {
   try {
     const packageVersion = await generateVersionNumber();
 
-    const uploadRequest = await exec("sfdx", ["force:package1:version:create", '--packageid', METADATA_PACKAGE_ID, '-n', packageVersion.next, '-v', packageVersion.next, '-d', `"${packageDescription}"`, "--json"]);
+    const uploadRequest = await exec("sfdx", ["force:package1:version:create", '--packageid', METADATA_PACKAGE_ID, '-n', packageVersion.next, '-v', packageVersion.next, '-d', packageDescription, "--json"]);
 
     const uploadRequestId = JSON.parse(uploadRequest.stdout).result.Id;
     const packageVersionId = await checkingUploadProgress(uploadRequestId);
